@@ -59,7 +59,7 @@ class Cardioid {
 
 		this.brot = new Image(this.m.brotSize, this.m.brotSize);
 		this.brot.addEventListener('load', this.nextFrame.bind(this));
-		this.brot.src = 'brot.png';
+		this.brot.src = '/assets/images/brot.png';
 	}
 
 	nextFrame() {
