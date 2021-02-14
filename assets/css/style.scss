@@ -3,10 +3,15 @@
 
 @import "{{ site.theme }}";
 
+#title {margin-bottom: 1em;}
 #header_image {width: 100%; text-align: center;}
-#header_image img {max-height: 3em;}
+#header_image img {max-height: 10em;}
 
+h1 {font-size: 32px;}
 a {color: #8df;}
 a:hover {color: #8bf;}
 blockquote {border-left-color: #d33;}
 ul {list-style-type: disc; list-style-image: none;}
+
+figure {text-align: center; margin-bottom: 1em;}
+figcaption {color: #d4d4d4; font-style: italic;}
