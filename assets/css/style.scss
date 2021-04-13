@@ -16,8 +16,10 @@ ul {list-style-type: disc; list-style-image: none;}
 figure {text-align: center; margin-bottom: 1em;}
 figcaption {color: #d4d4d4; font-style: italic;}
 
-.app .wrapper {max-width: none;}
-.app section {max-width: none; margin-top: 20px;}
+@media screen and (min-width: 700px) {
+	.app .wrapper {max-width: 90%;}
+	.app section {max-width: none;}
+}
 
 #toc.empty {display: none;}
 #toc {border: 1px solid #8df; padding: 0.5em; margin-bottom: 1em; display: table;} /* max-width: 300px; */
