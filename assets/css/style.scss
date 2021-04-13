@@ -18,3 +18,9 @@ figcaption {color: #d4d4d4; font-style: italic;}
 
 .app .wrapper {max-width: none;}
 .app section {max-width: none; margin-top: 20px;}
+
+#toc.empty (display: none;)
+#toc {border: 1px solid #8df; padding: 0.5em; margin-bottom: 1em; display: table;} /* max-width: 300px; */
+#toc ol {margin-bottom: 0; padding-left: 2em;}
+#toc > ol {padding-right: 2em;}
+#tocheader {text-align: center; font-weight: bold;}
