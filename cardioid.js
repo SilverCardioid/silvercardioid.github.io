@@ -25,10 +25,13 @@ Vector.polar = function(a, r=1) {
 	return new Vector(r*Math.cos(a), r*Math.sin(a))
 }
 
+const finish = new Event('finish');
+
 class Cardioid {
-	constructor(canvas, colours={}) {
+	constructor(canvas, colours={}, unitSize=0.15) {
 		this.canvas = canvas;
 		this.ctx = canvas.getContext('2d');
+		this.running = true;
 
 		this.t = {}; this.m = {}; this.p = {}; this.style = {};
 		this.t.ti  = 0.2; // pause between steps
@@ -45,16 +48,22 @@ class Cardioid {
 		this.t.dur = this.t.t6 + this.t.dt6 + this.t.ti; // end
 
 		this.p.nPoints = 400;
-		this._getMeasures();
+		this._getMeasures(unitSize);
 		this._getCardPoints();
-		window.onresize = (function(){this._getMeasures(); this._getCardPoints(); this.nextFrame();}).bind(this);
+		window.onresize = (function(){this._getMeasures(unitSize); this._getCardPoints(); this.nextFrame();}).bind(this);
 
-		this.style.bg = colours.bg || null;
 		this.style.red = colours.red || '#b00d0e';
 		this.style.grey = colours.grey || '#646464';
 		this.style.white = colours.white || '#fff';
+		this.style.colBG = colours.bg || null;
+		this.style.colBrot = colours.brot || this.style.red;
+		this.style.colDraw = colours.draw || this.style.colBrot;
+		this.style.colEvol = colours.evol || this.style.white;
+		this.style.colC = colours.c || this.style.white;
+		this.style.colBase = colours.base || this.style.red;
+		this.style.colRoll = colours.roll || this.style.grey;
 		this.style.faded = 0.3;
-		this.style.sw1 = this.m.circR/30;
+		this.style.sw1 = this.m.circR/22.5;
 		this.style.sw2 = this.m.circR/15;
 
 		this.brot = new Image(this.m.brotSize, this.m.brotSize);
@@ -68,6 +77,7 @@ class Cardioid {
 
 	setTime(t) {
 		this.t.start = performance.now() - 1000*t;
+		this.running = true;
 		this.nextFrame();
 	}
 
@@ -81,8 +91,8 @@ class Cardioid {
 		this.t.t = (timestamp - this.t.start)/1000;
 
 		this.ctx.clearRect(0, 0, this.m.W, this.m.H);
-		if (this.style.bg) {
-			this.ctx.fillStyle = this.style.bg;
+		if (this.style.colBG) {
+			this.ctx.fillStyle = this.style.colBG;
 			this.ctx.fillRect(0, 0, this.m.W, this.m.H);
 		}
 		this.ctx.save();
@@ -96,13 +106,13 @@ class Cardioid {
 					lineEnd = -2*this.m.circR - this._ease(this.t.t, this.t.t1c, this.t.dt1c, 0, this.m.circR);
 
 			this.ctx.lineWidth = this.style.sw1;
-			this.ctx.strokeStyle = this.style.red;
+			this.ctx.strokeStyle = this.style.colBase;
 			this._circle(circ1R); this.ctx.stroke();
-			this.ctx.strokeStyle = this.style.grey;
+			this.ctx.strokeStyle = this.style.colRoll;
 			this._circle(circ2R, -2*this.m.circR, 0); this.ctx.stroke();
 			this._drawShape([[-2*this.m.circR, 0], [lineEnd, 0]]); this.ctx.stroke();
 
-			this.ctx.fillStyle = this.style.grey;
+			this.ctx.fillStyle = this.style.colRoll;
 			this._circle(pointsR, -2*this.m.circR, 0); this.ctx.fill();
 			this._circle(pointsR, lineEnd, 0); this.ctx.fill();
 
@@ -112,18 +122,19 @@ class Cardioid {
 					rollC = Vector.polar(rollAngle, -2*this.m.circR),
 					cardPoint = rollC.add(Vector.polar(2*rollAngle, -this.m.circR));
 
-			this.ctx.strokeStyle = this.style.red;
+			this.ctx.strokeStyle = this.style.colDraw;
 			this.ctx.lineWidth = this.style.sw2;
 			this._drawShape(this.p.cardPoints, rollAngle); this.ctx.stroke();
 
+			this.ctx.strokeStyle = this.style.colBase;
 			this.ctx.lineWidth = this.style.sw1;
 			this._circle(this.m.circR); this.ctx.stroke();
 
-			this.ctx.strokeStyle = this.style.grey;
+			this.ctx.strokeStyle = this.style.colRoll;
 			this._circle(this.m.circR, rollC.x, rollC.y); this.ctx.stroke();
 			this._drawShape([rollC.xy, cardPoint.xy]); this.ctx.stroke();
 
-			this.ctx.fillStyle = this.style.grey;
+			this.ctx.fillStyle = this.style.colRoll;
 			this._circle(this.m.pointR, rollC.x, rollC.y); this.ctx.fill();
 			this._circle(this.m.pointR, cardPoint.x, cardPoint.y); this.ctx.fill();
 
@@ -133,19 +144,21 @@ class Cardioid {
 					newR = this._ease(this.t.t, this.t.t3, this.t.dt3, this.m.circR, this.m.curv.r),
 					newX = this._ease(this.t.t, this.t.t3, this.t.dt3, -2*this.m.circR, this.m.curv.evolute.x),
 					paraX = this._ease(this.t.t, this.t.t3, this.t.dt3, cardX, cardX + this.m.cardBorder),
-					fadeOut = this._rgba(this.style.red, this._ease(this.t.t, this.t.t3, this.t.dt3, 1, this.style.faded));
+					fadeDraw = this._rgba(this.style.colDraw, this._ease(this.t.t, this.t.t3, this.t.dt3, 1, this.style.faded)),
+					fadeBase = this._rgba(this.style.colBase, this._ease(this.t.t, this.t.t3, this.t.dt3, 1, this.style.faded));
 
-			this.ctx.strokeStyle = fadeOut;
+			this.ctx.strokeStyle = fadeDraw;
 			this.ctx.lineWidth = this.style.sw2;
 			this._drawShape(this.p.cardPoints); this.ctx.stroke();
+			this.ctx.strokeStyle = fadeBase;
 			this.ctx.lineWidth = this.style.sw1;
 			this._circle(this.m.circR); this.ctx.stroke();
 
-			this.ctx.strokeStyle = this.style.grey;
+			this.ctx.strokeStyle = this.style.colRoll;
 			this._circle(newR, newX, 0); this.ctx.stroke();
 			this._drawShape([[cardX, 0], [paraX, 0], [newX, 0]]); this.ctx.stroke();
 
-			this.ctx.fillStyle = this.style.grey;
+			this.ctx.fillStyle = this.style.colRoll;
 			this._circle(this.m.pointR, newX, 0); this.ctx.fill();
 			this._circle(this.m.pointR, paraX, 0); this.ctx.fill();
 
@@ -165,11 +178,11 @@ class Cardioid {
 			let paraXY = this.m.curv.point.add(this.m.curv.unit.mult(paraR));
 
 
-			this.ctx.strokeStyle = this._rgba(this.style.red, this.style.faded);
+			this.ctx.strokeStyle = this._rgba(this.style.colDraw, this.style.faded);
 			this.ctx.lineWidth = this.style.sw2;
 			this._drawShape(this.p.cardPoints); this.ctx.stroke()
 
-			this.ctx.strokeStyle = this.style.red;
+			this.ctx.strokeStyle = this.style.colDraw;
 			this._drawShape(this.p.paraPoints, evolAngle); this.ctx.stroke()
 			this._drawShape(this.p.evolPoints, evolAngle); this.ctx.stroke()
 
@@ -181,21 +194,22 @@ class Cardioid {
 				this._drawShape(this.p.line225); this.ctx.stroke();
 			}
 
-			this.ctx.strokeStyle = this._rgba(this.style.red, this.style.faded);
+			this.ctx.strokeStyle = this._rgba(this.style.colBase, this.style.faded);
 			this._circle(this.m.circR); this.ctx.stroke()
 
-			this.ctx.strokeStyle = this.style.grey;
+			this.ctx.strokeStyle = this.style.colRoll;
 			this._circle(this.m.curv.r, this.m.curv.evolute.x, this.m.curv.evolute.y); this.ctx.stroke();
 			this._drawShape([this.m.curv.point.xy, paraXY.xy, this.m.curv.evolute.xy]); this.ctx.stroke()
 
-			this.ctx.fillStyle = this.style.grey;
+			this.ctx.fillStyle = this.style.colRoll;
 			this._circle(this.m.pointR, paraXY.x, paraXY.y); this.ctx.fill();
 			this._circle(this.m.pointR, this.m.curv.evolute.x, this.m.curv.evolute.y); this.ctx.fill();
 
 		} else if (this.t.t < this.t.t6) {
 			// inner circle
-			let fadeIn = this._rgba(this.style.red, this._ease(this.t.t, this.t.t5, this.t.dt5, this.style.faded, 1)),
-			    fadeOut = this._rgba(this.style.grey, this._ease(this.t.t, this.t.t5, this.t.dt5, 1, 0)),
+			let fadeBase = this._rgba(this.style.colBase, this._ease(this.t.t, this.t.t5, this.t.dt5, this.style.faded, 1)),
+			    fadeDraw = this._rgba(this.style.colDraw, this._ease(this.t.t, this.t.t5, this.t.dt5, this.style.faded, 1)),
+			    fadeRoll = this._rgba(this.style.colRoll, this._ease(this.t.t, this.t.t5, this.t.dt5, 1, 0)),
 			    paraXY = this.m.curv.point.add(this.m.curv.unit.mult(this.m.cardBorder)),
 			    circ1R = this._ease(this.t.t, this.t.t5, this.t.dt5, this.m.circR, this.m.innerR),
 			    circ1X = -this._ease(this.t.t, this.t.t5, this.t.dt5, 0, this.m.originOffsetFinal),
@@ -203,7 +217,7 @@ class Cardioid {
 			    strokeWidth = this._ease(this.t.t, this.t.t5, this.t.dt5, this.style.sw1, this.style.sw2);
 			this.ctx.translate(moveCentre, 0);
 
-			this.ctx.strokeStyle = this.style.red;
+			this.ctx.strokeStyle = this.style.colDraw;
 			this.ctx.lineWidth = strokeWidth;
 			this._drawShape(this.p.line135); this.ctx.stroke();
 			this._drawShape(this.p.line225); this.ctx.stroke();
@@ -212,18 +226,19 @@ class Cardioid {
 			this._drawShape(this.p.paraPoints); this.ctx.stroke();
 			this._drawShape(this.p.evolPoints); this.ctx.stroke();
 
-			this.ctx.strokeStyle = fadeIn;
+			this.ctx.strokeStyle = fadeDraw;
 			this._drawShape(this.p.cardPoints); this.ctx.stroke();
 
+			this.ctx.strokeStyle = fadeBase;
 			this.ctx.lineWidth = strokeWidth;
 			this._circle(circ1R, circ1X, 0); this.ctx.stroke();
 
-			this.ctx.strokeStyle = fadeOut;
+			this.ctx.strokeStyle = fadeRoll;
 			this.ctx.lineWidth = this.style.sw1;
 			this._circle(this.m.curv.r, this.m.curv.evolute.x, this.m.curv.evolute.y); this.ctx.stroke();
 			this._drawShape([this.m.curv.point.xy, paraXY.xy, this.m.curv.evolute.xy]); this.ctx.stroke();
 
-			this.ctx.fillStyle = fadeOut;
+			this.ctx.fillStyle = fadeRoll;
 			this._circle(this.m.pointR, paraXY.x); this.ctx.fill();
 			this._circle(this.m.pointR, this.m.curv.evolute.x, this.m.curv.evolute.y); this.ctx.fill();
 
@@ -235,14 +250,14 @@ class Cardioid {
 			this.ctx.translate(this.m.originOffsetFinal - this.m.originOffsetInitial, 0);
 
 			this._drawBrot();
-			this.ctx.fillStyle = this.style.red;
+			this.ctx.fillStyle = this.style.colBrot;
 			this._drawShape(this.p.cardPoints); this.ctx.fill();
-			this.ctx.fillStyle = this.style.white;
+			this.ctx.fillStyle = this.style.colC;
 			this._drawShape(this.p.paraPoints); this.ctx.fill();
-			this.ctx.fillStyle = this.style.red;
+			this.ctx.fillStyle = this.style.colBrot;
 			this._drawShape(this.p.cMask); this.ctx.fill();
 			this._circle(this.m.innerR, -this.m.originOffsetFinal, 0); this.ctx.fill();
-			this.ctx.fillStyle = this.style.white;
+			this.ctx.fillStyle = this.style.colEvol;
 			this._drawShape(this.p.evolPoints); this.ctx.fill();
 
 			// fade the above in
@@ -253,20 +268,24 @@ class Cardioid {
 			this.ctx.globalCompositeOperation = "source-over";
 
 			if (strokeWidth > 0) {
-				this.ctx.strokeStyle = this.style.red;
+				this.ctx.strokeStyle = this.style.colDraw;
 				this.ctx.lineWidth = strokeWidth;
 				this._drawShape(this.p.cardPoints); this.ctx.stroke();
 				this._drawShape(this.p.paraPoints); this.ctx.stroke();
-				this._circle(this.m.innerR, -this.m.originOffsetFinal, 0); this.ctx.stroke()
 				this._drawShape(this.p.line135); this.ctx.stroke();
 				this._drawShape(this.p.line225); this.ctx.stroke();
 				this._drawShape(this.p.evolPoints); this.ctx.stroke();
+				this.ctx.strokeStyle = this.style.colBase;
+				this._circle(this.m.innerR, -this.m.originOffsetFinal, 0); this.ctx.stroke()
 			}
 		}
 
 		this.ctx.restore();
 		if (this.t.t < this.t.dur) {
 			this.nextFrame();
+		} else {
+			this.canvas.dispatchEvent(finish);
+			this.running = false;
 		}
 	}
 
@@ -281,7 +300,7 @@ class Cardioid {
 
 	_drawBrot() {
 		let rect = [-this.m.brotSize/2, -this.m.brotSize/2, this.m.brotSize, this.m.brotSize];
-		this.ctx.fillStyle = this.style.red;
+		this.ctx.fillStyle = this.style.colBrot;
 		this.ctx.fillRect(...rect);
 		this.ctx.globalCompositeOperation = "destination-in";
 		this.ctx.drawImage(this.brot, ...rect);
@@ -320,10 +339,10 @@ class Cardioid {
 		return grad;
 	}
 
-	_getMeasures() {
-		this.m.W = canvas.offsetWidth; this.m.H = canvas.offsetHeight;
-		canvas.width = this.m.W; canvas.height = this.m.H;
-		this.m.circR = 0.15*Math.min(this.m.H, this.m.W);
+	_getMeasures(unitSize) {
+		this.m.W = this.canvas.offsetWidth; this.m.H = this.canvas.offsetHeight;
+		this.canvas.width = this.m.W; this.canvas.height = this.m.H;
+		this.m.circR = unitSize*Math.min(this.m.H, this.m.W);
 		this.m.pointR = this.m.circR/20;
 		this.m.cardBorder = this.m.circR/2;
 		this.m.innerR = this.m.circR*3/2;
@@ -384,5 +403,33 @@ class Cardioid {
 		// unit normal vector
 		o.unit = o.vect.mult(1/o.r);
 		return o;
+	}
+}
+
+if (typeof($) != 'undefined' && $('#header_image').length>0) {
+	let headerTimeout = null, headerCard = null, waitTime=2000, fadeTime = 1000;
+	$('#header_image').on({
+		'mouseover': () => {headerTimeout = setTimeout(headerAnim, waitTime);},
+		'mouseout': () => {clearTimeout(headerTimeout);}
+	});
+	function headerAnim() {
+		let img = $('#header_image img');
+		$('#header_image').css('position', 'relative');
+		if (!headerCard) {
+			let canv = $('<canvas>');
+			canv.insertBefore(img);
+			canv.on('finish', () => {
+				img.animate({opacity:1}, fadeTime, () => {
+					canv.animate({opacity:0}, fadeTime);
+				});
+			});
+			headerCard = new Cardioid(canv.get(0), {brot:'#fff', c:'#01488d', evol:'#b00d0e', base:'#fff', roll:'#8df'}, 0.125);
+			img.animate({opacity:0}, fadeTime);
+		} else if (!headerCard.running) {
+			// Restart
+			headerCard.setTime(0);
+			headerCard.canvas.style.opacity = 1;
+			img.animate({opacity:0}, fadeTime);
+		}
 	}
 }
