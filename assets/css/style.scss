@@ -1,12 +1,11 @@
 ---
 ---
 
-@import "{{ site.theme }}";
-
 :root {--link-color: #8df; --hover-link-color: #8bf;}
 
-#header nav li a {background: linear_gradient(#b00d0e, #8e0b0b); background-color: #b00d0e;}
-#header nav li a:hover {background: linear_gradient(#7e090a, #580707); background-color: #7e090a;}
+#header nav li a {background: linear-gradient(#b00d0e, #8e0b0b); background-color: #b00d0e; border: 1px solid #7e090a;
+                  float: left; margin-left: 6px;}
+#header nav li a:hover {background: linear-gradient(#7e090a, #580707); background-color: #7e090a; border: 1px solid #420505;}
 
 section #title {margin-bottom: 1em;}
 #header_image {width: 100%; text-align: center;}
@@ -34,3 +33,5 @@ figure img, figure video, figure audio {max-width: 100%;}
 #toc ol {margin-bottom: 0; padding-left: 2em;}
 #toc > ol {padding-right: 2em;}
 #tocheader {text-align: center; font-weight: bold;}
+
+@import "{{ site.theme }}";
