@@ -8,6 +8,8 @@
 #header nav ul li a {background: linear-gradient(#b00d0e, #8e0b0b); background-color: #b00d0e; border: 1px solid #7e090a;
                      float: left; margin-left: 6px;}
 #header nav ul li a:hover {background: linear-gradient(#7e090a, #580707); background-color: #7e090a; border: 1px solid #420505;}
+#header nav .logo {float: left; margin-right: 5px;}
+#header nav .logo img {height: 48px;} /* 80% */
 
 section #title {margin-bottom: 1em;}
 #header_image {width: 100%; text-align: center;}
