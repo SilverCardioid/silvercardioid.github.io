@@ -1,5 +1,11 @@
 'use strict';
 
+const colourSchemes = {
+	'blue': {brot:'#3e7aab', c:'#ffe15f', evol:'#ffe15f', base:'#3e7aab', roll:'#ffe15f'},
+	'red': {red:'#c81d1e'},
+	'white': {brot:'#fff', c:'#01488d', evol:'#b00d0e', base:'#fff', roll:'#8df'}
+}
+
 class Vector {
 	constructor(x, y) {
 		this.x = x;
@@ -53,7 +59,7 @@ class Cardioid {
 		window.onresize = (function(){this._getMeasures(unitSize); this._getCardPoints(); this.nextFrame();}).bind(this);
 
 		this.style.red = colours.red || '#b00d0e';
-		this.style.grey = colours.grey || '#646464';
+		this.style.grey = colours.grey || '#888';
 		this.style.white = colours.white || '#fff';
 		this.style.colBG = colours.bg || null;
 		this.style.colBrot = colours.brot || this.style.red;
@@ -417,8 +423,8 @@ if (typeof($) != 'undefined' && $('#header_image').length>0) {
 		'mouseover': () => {headerTimeout = setTimeout(headerAnim, waitTime);},
 		'mouseout': () => {clearTimeout(headerTimeout);}
 	});
+	let img = $('#header_image img');
 	function headerAnim() {
-		let img = $('#header_image img');
 		$('#header_image').css('position', 'relative');
 		if (!headerCard) {
 			let canv = $('<canvas>');
@@ -428,7 +434,9 @@ if (typeof($) != 'undefined' && $('#header_image').length>0) {
 					canv.animate({opacity:0}, fadeTime);
 				});
 			});
-			headerCard = new Cardioid(canv.get(0), {brot:'#fff', c:'#01488d', evol:'#b00d0e', base:'#fff', roll:'#8df'}, 0.125);
+			let colour = img.attr('src').match(/header-(\w+).png/);
+			colour = colour ? colour[1] : 'white';
+			headerCard = new Cardioid(canv.get(0), colourSchemes[colour] || {}, 0.125);
 			img.animate({opacity:0}, fadeTime);
 		} else if (!headerCard.running) {
 			// Restart
@@ -436,5 +444,9 @@ if (typeof($) != 'undefined' && $('#header_image').length>0) {
 			headerCard.canvas.style.opacity = 1;
 			img.animate({opacity:0}, fadeTime);
 		}
+	}
+	if (img.css('opacity') == 0) {
+		// Run automatically
+		img.on('load', headerAnim);;
 	}
 }

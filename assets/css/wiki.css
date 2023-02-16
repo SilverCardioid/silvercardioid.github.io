@@ -1,0 +1,6 @@
+.appbuttons {text-align: center;}
+.appbutton {display: inline-block; margin: 0.5em; padding: 1em; border: 1px solid var(--link-color, #8df); max-width: 9em; font-size: 110%; text-align: center;}
+.appbutton:hover {border-color: var(--hover-link-color, #8bf); background-color: rgba(0, 0, 0, 0.05);}
+.appbutton img {width: 90%;}
+.apptitle {margin-top: 0.5em;}
+.appabout {margin-top: 0.25em; font-size: 85%;}
