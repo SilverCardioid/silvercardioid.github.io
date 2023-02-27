@@ -12,24 +12,27 @@
 #header nav .logo img {height: 48px;} /* 80% */
 
 section #title {margin-bottom: 1em;}
+section #title .credits {color: #878787;}
 #header_image {width: 100%; text-align: center;}
 #header_image img {max-height: 10em;}
 #header_image canvas {width: 100%; height: 100%; position: absolute; left: 0; top: 0; z-index: -1;}
 
 h1 {font-size: 32px;}
+h2, h3 {margin-top: 0.5em;}
 a {color: var(--link-color, #8df);}
 a:hover {color: var(--hover-link-color, #8bf);}
 blockquote {border-left-color: #d33;}
 ul {list-style-type: disc; list-style-image: none;}
 ul ul {margin-bottom: 0;}
 
-figure {text-align: center; margin-bottom: 1em;}
+figure {text-align: center; margin: 0 auto 1em auto;}
 figcaption {color: #d4d4d4; font-style: italic;}
 figure img, figure video, figure audio {max-width: 100%;}
 
 @media screen and (min-width: 700px) {
 	.app .wrapper {max-width: 90%;}
 	.app section {max-width: none;}
+	.float-right {float: right; max-width: 260px; margin: 1em;}
 }
 
 #toc.empty {display: none;}

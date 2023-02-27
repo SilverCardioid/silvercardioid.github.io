@@ -112,9 +112,9 @@ class Cardioid {
 		if (this.t.t < this.t.t2) {
 			// circles and line appear
 			let circ1R = this._ease(this.t.t, this.t.t1a, this.t.dt1a, 0, this.m.circR),
-					circ2R = this._ease(this.t.t, this.t.t1b, this.t.dt1b, 0, this.m.circR),
-					pointsR = this._ease(this.t.t, this.t.t1c, this.t.dt1c, 0, this.m.pointR),
-					lineEnd = -2*this.m.circR - this._ease(this.t.t, this.t.t1c, this.t.dt1c, 0, this.m.circR);
+			    circ2R = this._ease(this.t.t, this.t.t1b, this.t.dt1b, 0, this.m.circR),
+			    pointsR = this._ease(this.t.t, this.t.t1c, this.t.dt1c, 0, this.m.pointR),
+			    lineEnd = -2*this.m.circR - this._ease(this.t.t, this.t.t1c, this.t.dt1c, 0, this.m.circR);
 
 			this.ctx.lineWidth = this.style.sw1;
 			this.ctx.strokeStyle = this.style.colBase;
@@ -130,8 +130,8 @@ class Cardioid {
 		} else if (this.t.t < this.t.t3) {
 			// rolling
 			let rollAngle = this._ease(this.t.t, this.t.t2, this.t.dt2, 0, 2*Math.PI),
-					rollC = Vector.polar(rollAngle, -2*this.m.circR),
-					cardPoint = rollC.add(Vector.polar(2*rollAngle, -this.m.circR));
+			    rollC = Vector.polar(rollAngle, -2*this.m.circR),
+			    cardPoint = rollC.add(Vector.polar(2*rollAngle, -this.m.circR));
 
 			this.ctx.strokeStyle = this.style.colDraw;
 			this.ctx.lineWidth = this.style.sw2;
@@ -152,11 +152,11 @@ class Cardioid {
 		} else if (this.t.t < this.t.t4a) {
 			// circle of curvature
 			let cardX = this.m.curv.point.x,
-					newR = this._ease(this.t.t, this.t.t3, this.t.dt3, this.m.circR, this.m.curv.r),
-					newX = this._ease(this.t.t, this.t.t3, this.t.dt3, -2*this.m.circR, this.m.curv.evolute.x),
-					paraX = this._ease(this.t.t, this.t.t3, this.t.dt3, cardX, cardX + this.m.cardBorder),
-					fadeDraw = this._rgba(this.style.colDraw, this._ease(this.t.t, this.t.t3, this.t.dt3, 1, this.style.faded)),
-					fadeBase = this._rgba(this.style.colBase, this._ease(this.t.t, this.t.t3, this.t.dt3, 1, this.style.faded));
+			    newR = this._ease(this.t.t, this.t.t3, this.t.dt3, this.m.circR, this.m.curv.r),
+			    newX = this._ease(this.t.t, this.t.t3, this.t.dt3, -2*this.m.circR, this.m.curv.evolute.x),
+			    paraX = this._ease(this.t.t, this.t.t3, this.t.dt3, cardX, cardX + this.m.cardBorder),
+			    fadeDraw = this._rgba(this.style.colDraw, this._ease(this.t.t, this.t.t3, this.t.dt3, 1, this.style.faded)),
+			    fadeBase = this._rgba(this.style.colBase, this._ease(this.t.t, this.t.t3, this.t.dt3, 1, this.style.faded));
 
 			this.ctx.strokeStyle = fadeDraw;
 			this.ctx.lineWidth = this.style.sw2;
@@ -187,7 +187,6 @@ class Cardioid {
 			this.p.evolPoints.push(this.m.curv.evolute.xy);
 			let paraR = Math.min(this.m.curv.r, this.m.cardBorder);
 			let paraXY = this.m.curv.point.add(this.m.curv.unit.mult(paraR));
-
 
 			this.ctx.strokeStyle = this._rgba(this.style.colDraw, this.style.faded);
 			this.ctx.lineWidth = this.style.sw2;
@@ -300,11 +299,10 @@ class Cardioid {
 		}
 	}
 
-	_drawShape(points, limit=null) {
-		if (limit==null) {limit = this.p.nPoints + 1;}
+	_drawShape(points, limit=2*Math.PI) {
 		this.ctx.beginPath();
 		this.ctx.moveTo(...points[0]);
-		for (let i = 1; i < points.length && this.p.angles[i] < limit; i++) {
+		for (let i = 1; i < points.length && this.p.angles[i] <= limit; i++) {
 			this.ctx.lineTo(...points[i]);
 		}
 	}
@@ -329,9 +327,9 @@ class Cardioid {
 	}
 
 	_rgb(hex) {
-    if (hex.charAt(0)=='#') {hex = hex.substr(1);}
-    if (hex.length<=3) {hex = hex.split('').reduce((a,b)=>(a+b+b), '');}
-    return [parseInt(hex.substr(0, 2), 16), parseInt(hex.substr(2, 2), 16), parseInt(hex.substr(4, 2), 16)];
+		if (hex.charAt(0)=='#') {hex = hex.substr(1);}
+		if (hex.length<=3) {hex = hex.split('').reduce((a,b)=>(a+b+b), '');}
+		return [parseInt(hex.substr(0, 2), 16), parseInt(hex.substr(2, 2), 16), parseInt(hex.substr(4, 2), 16)];
 	}
 
 	_rgba(hex, a) {
@@ -425,8 +423,8 @@ if (typeof($) != 'undefined' && $('#header_image').length>0) {
 	});
 	let img = $('#header_image img');
 	function headerAnim() {
-		$('#header_image').css('position', 'relative');
 		if (!headerCard) {
+			$('#header_image').css('position', 'relative');
 			let canv = $('<canvas>');
 			canv.insertBefore(img);
 			canv.on('finish', () => {
@@ -447,6 +445,6 @@ if (typeof($) != 'undefined' && $('#header_image').length>0) {
 	}
 	if (img.css('opacity') == 0) {
 		// Run automatically
-		img.on('load', headerAnim);;
+		img.on('load', headerAnim);
 	}
 }
