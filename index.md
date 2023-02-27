@@ -20,7 +20,7 @@ headercolour: red
 
 ## Cardi...what?
 <figure class="float-right">
-<video src="cardioids.mp4" controls="controls" autoplay="autoplay" loop="loop" style="max-height: 300px;"></video>
+<video src="/assets/images/cardioids.mp4" controls="controls" autoplay="autoplay" loop="loop" style="max-height: 300px;"></video>
 <figcaption>An animation of three definitions of the cardioid: (1) rolling circles; (2) <a href="https://en.wikipedia.org/wiki/Caustic_(mathematics)">caustic</a> or envelope of reflecting rays inside a circle (or equivalently of <a href="/apps/division/about#visual-patterns">angle-doubling chords</a>); and (3) <a href="https://en.wikipedia.org/wiki/Circle_inversion">inversion</a> of a parabola through a circle.</figcaption>
 </figure>
 
