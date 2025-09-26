@@ -4,6 +4,8 @@ headercolour: red
 ---
 
 # SilverCardioid
+A Dutch software developer who occasionally makes stuff outside of work, and even more occasionally puts it online.
+
 <div class="appbuttons">
 
 <a href="python/"><div class="appbutton">
